@@ -18,7 +18,7 @@ public class AccountJDBC implements AccountDAO{
 	}
 	
 	@Override
-	public BigDecimal viewAccountBalance(int userId) {
+	public UserAccount viewAccountBalance(int userId) {
 		String sqlSelectStatement = "SELECT account_id, user_id, CAST (balance AS decimal) FROM accounts WHERE user_id = ?";
 		SqlRowSet rows = jdbcTemplate.queryForRowSet(sqlSelectStatement, userId);
 		UserAccount userAccount = null;
@@ -26,7 +26,7 @@ public class AccountJDBC implements AccountDAO{
 		while (rows.next()) {
 			userAccount = mapRowToUserAccount(rows);
 		}
-		return userAccount.getAccountBalance();
+		return userAccount;
 	}
 	
 	private UserAccount mapRowToUserAccount(SqlRowSet rows) {

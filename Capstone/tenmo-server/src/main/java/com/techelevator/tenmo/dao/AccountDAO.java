@@ -2,8 +2,10 @@ package com.techelevator.tenmo.dao;
 
 import java.math.BigDecimal;
 
+import com.techelevator.tenmo.model.UserAccount;
+
 public interface AccountDAO {
 
-	BigDecimal viewAccountBalance(int userId);
+	UserAccount viewAccountBalance(int userId);
 	
 }
