@@ -6,6 +6,7 @@ import javax.imageio.metadata.IIOInvalidTreeException;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import com.techelevator.tenmo.models.AuthenticatedUser;
+import com.techelevator.tenmo.models.Transfer;
 import com.techelevator.tenmo.models.User;
 import com.techelevator.tenmo.models.UserAccount;
 import com.techelevator.tenmo.models.UserCredentials;
@@ -34,6 +35,7 @@ private static final String API_BASE_URL = "http://localhost:8080/";
     private ConsoleService console;
     private AuthenticationService authenticationService;
     private UserAccountAPI userAccountAPI;
+    
     
 
     public static void main(String[] args) {
@@ -107,7 +109,13 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 		//TODO recipient id is in the list check if funds are avilable
 		int recipientId = console.getUserInputInteger("Select a user ID>>>");
 		int amountToTransfer = console.getUserInputInteger("Enter amount >>" );
+		Transfer transfer = new Transfer();
+		transfer.setAmount(amountToTransfer);
+		transfer.setRecipientId(recipientId);
+		transfer.setTransferType(2);
+		transfer.setUserId(currentUser.getUser().getId());
 		
+		userAccountAPI.createTransfer(transfer, currentUser.getToken());
 		
 		
 	}
