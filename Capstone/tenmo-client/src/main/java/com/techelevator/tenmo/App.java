@@ -98,6 +98,17 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 			System.out.print(  a.getAmount());
 			System.out.println();
 		}
+		int userSelectedTransferId = console.getUserInputInteger("Please enter transfer ID to view details >>>");
+		//TODO adjust transfer object to contain from and to names 
+		// adjust sql command to add join
+		for( Transfer b:listOfTransfers ) {
+			if(b.getTransferId() == userSelectedTransferId) {
+				System.out.println( "ID " + b.getTransferId());
+				System.out.println( "Amount " + b.getAmount());
+			}
+		}
+		
+	
 		
 		
 	}
