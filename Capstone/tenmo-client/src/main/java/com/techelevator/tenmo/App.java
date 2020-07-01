@@ -1,9 +1,12 @@
 package com.techelevator.tenmo;
 
+import java.util.List;
+
 import javax.imageio.metadata.IIOInvalidTreeException;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import com.techelevator.tenmo.models.AuthenticatedUser;
+import com.techelevator.tenmo.models.User;
 import com.techelevator.tenmo.models.UserAccount;
 import com.techelevator.tenmo.models.UserCredentials;
 import com.techelevator.tenmo.services.AuthenticationService;
@@ -31,6 +34,7 @@ private static final String API_BASE_URL = "http://localhost:8080/";
     private ConsoleService console;
     private AuthenticationService authenticationService;
     private UserAccountAPI userAccountAPI;
+    
 
     public static void main(String[] args) {
     	App app = new App(new ConsoleService(System.in, System.out), new AuthenticationService(API_BASE_URL));
@@ -40,7 +44,9 @@ private static final String API_BASE_URL = "http://localhost:8080/";
     public App(ConsoleService console, AuthenticationService authenticationService) {
 		this.console = console;
 		this.authenticationService = authenticationService;
+		
 		this.userAccountAPI = new UserAccountAPI(API_BASE_URL);
+		
 	}
 
 	public void run() {
@@ -75,8 +81,8 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 	}
 
 	private void viewCurrentBalance() {
-		int useId = 1;
-		UserAccount user = userAccountAPI.viewAccountBalance(useId);
+		
+		UserAccount user = userAccountAPI.viewAccountBalance(currentUser.getUser().getId() , currentUser.getToken());
 		
 		System.out.println("Your current balance $" + user.getAccountBalance());
 		
@@ -93,7 +99,10 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 	}
 
 	private void sendBucks() {
-		// TODO Auto-generated method stub
+		List<User> list = userAccountAPI.viewAll(currentUser.getToken());
+		for(User a : list) {
+			System.out.println(a.getId() + a.getUsername());
+		}
 		
 	}
 

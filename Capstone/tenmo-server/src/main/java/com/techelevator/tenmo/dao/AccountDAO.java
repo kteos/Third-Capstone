@@ -6,6 +6,6 @@ import com.techelevator.tenmo.model.UserAccount;
 
 public interface AccountDAO {
 
-	UserAccount viewAccountBalance(int userId);
+	UserAccount viewAccountBalance(int userId );
 	
 }
