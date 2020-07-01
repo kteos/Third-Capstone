@@ -102,7 +102,13 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 		List<User> list = userAccountAPI.viewAll(currentUser.getToken());
 		for(User a : list) {
 			System.out.println(a.getId() + a.getUsername());
+			//TODO formatting needs to be done 
 		}
+		//TODO recipient id is in the list check if funds are avilable
+		int recipientId = console.getUserInputInteger("Select a user ID>>>");
+		int amountToTransfer = console.getUserInputInteger("Enter amount >>" );
+		
+		
 		
 	}
 
