@@ -1,5 +1,6 @@
 package com.techelevator.tenmo;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import javax.imageio.metadata.IIOInvalidTreeException;
@@ -91,7 +92,13 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 	}
 
 	private void viewTransferHistory() {
-		// TODO Auto-generated method stub
+		List<Transfer> listOfTransfers = userAccountAPI.listOfUserTransfers(currentUser.getUser().getId(), currentUser.getToken());
+		for(Transfer a : listOfTransfers) {
+			System.out.print(a.getTransferId() + "    ");
+			System.out.print(  a.getAmount());
+			System.out.println();
+		}
+		
 		
 	}
 
@@ -110,7 +117,7 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 		int recipientId = console.getUserInputInteger("Select a user ID>>>");
 		int amountToTransfer = console.getUserInputInteger("Enter amount >>" );
 		Transfer transfer = new Transfer();
-		transfer.setAmount(amountToTransfer);
+		transfer.setAmount(BigDecimal.valueOf(amountToTransfer));
 		transfer.setRecipientId(recipientId);
 		transfer.setTransferType(2);
 		transfer.setUserId(currentUser.getUser().getId());
@@ -130,7 +137,7 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 		int recipientId = console.getUserInputInteger("Select a user ID>>>");
 		int amountToTransfer = console.getUserInputInteger("Enter amount >>" );
 		Transfer transfer = new Transfer();
-		transfer.setAmount(amountToTransfer);
+		transfer.setAmount(BigDecimal.valueOf(amountToTransfer));
 		transfer.setRecipientId(recipientId);
 		transfer.setTransferType(1);
 		transfer.setUserId(currentUser.getUser().getId());

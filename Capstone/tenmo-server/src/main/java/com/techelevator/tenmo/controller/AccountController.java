@@ -47,6 +47,13 @@ public class AccountController {
 		accountDAO.completeTransfer(transfer);
 	}
 	
+	@RequestMapping(path="/transfer/{id}", method=RequestMethod.POST)
+	public List<Transfer>viewAllTransfersById(@PathVariable(name="id") int userId){
+		return accountDAO.getAllTransfers(userId);
+	}
+		
+	
+	
 	
 	
 }

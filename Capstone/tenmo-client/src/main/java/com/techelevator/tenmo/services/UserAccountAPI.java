@@ -77,5 +77,14 @@ public  UserAccountAPI( String baseUrl ) {
 		
 	}
 
+	@Override
+	public List<Transfer> listOfUserTransfers(int userId, String token) {
+		HttpEntity entity = createRequestEntity(token);
+		Transfer[] arrayOfTransfers = restTemplate.exchange(baseUrl + "transfer/" + userId , HttpMethod.POST , entity, Transfer[].class).getBody();
+		List<Transfer> listOfTransfers = Arrays.asList(arrayOfTransfers);
+
+		return listOfTransfers;
+	}
+
 	
 }
