@@ -121,7 +121,21 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 	}
 
 	private void requestBucks() {
-		// TODO Auto-generated method stub
+		List<User> list = userAccountAPI.viewAll(currentUser.getToken());
+		for(User a : list) {
+			System.out.println(a.getId() + a.getUsername());
+			//TODO formatting needs to be done 
+		}
+		//TODO recipient id is in the list check if funds are avilable
+		int recipientId = console.getUserInputInteger("Select a user ID>>>");
+		int amountToTransfer = console.getUserInputInteger("Enter amount >>" );
+		Transfer transfer = new Transfer();
+		transfer.setAmount(amountToTransfer);
+		transfer.setRecipientId(recipientId);
+		transfer.setTransferType(1);
+		transfer.setUserId(currentUser.getUser().getId());
+		
+		userAccountAPI.createTransfer(transfer, currentUser.getToken());
 		
 	}
 	

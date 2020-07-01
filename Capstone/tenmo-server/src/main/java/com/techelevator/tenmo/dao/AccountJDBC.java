@@ -43,10 +43,10 @@ public class AccountJDBC implements AccountDAO{
 	@Override
 	public void completeTransfer(Transfer transfer) {
 		if(transfer.getTransferType() == 1) {
-			String increaseSql = "UPDATE accounts SET balance = (SELECT balance)+ ? WHERE account_id = ?";
-			jdbcTemplate.update(increaseSql, transfer.getAmount() , transfer.getUserId());
-			String decreaseSql = "UPDATE accounts SET balance = (SELECT balance)- ? WHERE account_id = ?";
-			jdbcTemplate.update(decreaseSql, transfer.getAmount() , transfer.getRecipientId());
+//			String increaseSql = "UPDATE accounts SET balance = (SELECT balance)+ ? WHERE account_id = ?";
+//			jdbcTemplate.update(increaseSql, transfer.getAmount() , transfer.getUserId());
+//			String decreaseSql = "UPDATE accounts SET balance = (SELECT balance)- ? WHERE account_id = ?";
+//			jdbcTemplate.update(decreaseSql, transfer.getAmount() , transfer.getRecipientId());
 			String transferSql = "INSERT INTO transfers (transfer_id, transfer_type_id, transfer_status_id, account_from, account_to, amount) VALUES (DEFAULT, 1, 1, ?, ?, ?)";
 			jdbcTemplate.update(transferSql , transfer.getRecipientId(), transfer.getUserId()  , BigDecimal.valueOf(transfer.getAmount()));
 			
