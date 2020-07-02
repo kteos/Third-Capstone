@@ -1,9 +1,11 @@
 package com.techelevator.tenmo;
 
 import java.math.BigDecimal;
+import java.util.Collections;
 import java.util.List;
 
 import javax.imageio.metadata.IIOInvalidTreeException;
+import javax.sound.midi.Receiver;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import com.techelevator.tenmo.models.AuthenticatedUser;
@@ -108,6 +110,7 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 		// adjust sql command to add join
 		for( Transfer b:listOfTransfers ) {
 			if(b.getTransferId() == userSelectedTransferId) {
+				
 					System.out.println("ID: " + b.getTransferId());
 					System.out.println("From: " + b.getSenderName());
 					System.out.println("To: " + b.getRecipientName());
@@ -122,52 +125,35 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 
 	private void viewPendingRequests() {
 		List<Transfer> pendingTranfers = userAccountAPI.getPendingTransfers(currentUser.getUser().getId(), currentUser.getToken());
-		System.out.println( "Pending Tranfers");
-		System.out.println( "--------------------------------------");
-		for( Transfer a : pendingTranfers) {
-			System.out.print(a.getTransferId() + "  "+ a.getSenderName() + "   $" + a.getAmount());
-			System.out.println();
-		}
-		
+		pendingTransferPrettyPrinter(pendingTranfers);
 	}
 
 	private void sendBucks() {
 		List<User> list = userAccountAPI.viewAll(currentUser.getToken());
-		for(User a : list) {
-			System.out.println(a.getId() + a.getUsername());
-			//TODO formatting needs to be done 
-		}
-		//TODO recipient id is in the list check if funds are available
-		int recipientId = console.getUserInputInteger("Select a user ID>>>");
+		usersPrettyPrinter(list, currentUser.getUser().getId());
+		int userId = userIdSelector(list, currentUser.getUser().getId());
 		int amountToTransfer = console.getUserInputInteger("Enter amount >>" );
-		Transfer transfer = new Transfer();
-		transfer.setAmount(BigDecimal.valueOf(amountToTransfer));
-		transfer.setRecipientId(recipientId);
-		transfer.setTransferType(2);
-		transfer.setUserId(currentUser.getUser().getId());
-		
+		UserAccount currentUserAccount = userAccountAPI.viewAccountBalance(currentUser.getUser().getId(), currentUser.getToken());
+//		if (BigDecimal.valueOf(amountToTransfer) > currentUserAccount.getAccountBalance()) {
+//			System.out.println("Sorry, you don't have the available funds");
+//			return;
+//		}
+//		
+//		if (currentUserAccount.getAccountBalance().compareTo(val))
+		Transfer transfer = transferBuilder(amountToTransfer, 2, userId, currentUser.getUser().getId());
 		userAccountAPI.createTransfer(transfer, currentUser.getToken());
-		
+		System.out.println("Transfer successfully sent!");
 		
 	}
 
 	private void requestBucks() {
 		List<User> list = userAccountAPI.viewAll(currentUser.getToken());
-		for(User a : list) {
-			System.out.println(a.getId() + a.getUsername());
-			//TODO formatting needs to be done 
-		}
-		//TODO recipient id is in the list check if funds are avilable
-		int recipientId = console.getUserInputInteger("Select a user ID>>>");
+		usersPrettyPrinter(list, currentUser.getUser().getId());
+		int userId = userIdSelector(list, currentUser.getUser().getId());
 		int amountToTransfer = console.getUserInputInteger("Enter amount >>" );
-		Transfer transfer = new Transfer();
-		transfer.setAmount(BigDecimal.valueOf(amountToTransfer));
-		transfer.setRecipientId(recipientId);
-		transfer.setTransferType(1);
-		transfer.setUserId(currentUser.getUser().getId());
-		
+		Transfer transfer = transferBuilder(amountToTransfer, 1, userId, currentUser.getUser().getId());
 		userAccountAPI.createTransfer(transfer, currentUser.getToken());
-		
+		System.out.println("Request successfully made!");
 	}
 	
 	private void exitProgram() {
@@ -228,5 +214,73 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 		String username = console.getUserInput("Username");
 		String password = console.getUserInput("Password");
 		return new UserCredentials(username, password);
+	}
+	
+	private void usersPrettyPrinter(List<User> users, int currentUserId) {
+		System.out.println(String.join("", Collections.nCopies(20, "--")));
+		System.out.println("Users");
+		System.out.printf("%-10s", "ID");
+		System.out.printf("%-10s", "Name");
+		System.out.println();
+		System.out.println(String.join("", Collections.nCopies(20, "--")));
+		for(User a : users) {
+			if (a.getId() != currentUserId) {
+				System.out.printf("%-10s", a.getId());
+				System.out.printf("%-10s", a.getUsername());
+				System.out.println();
+			}
+		}
+		System.out.println(String.join("", Collections.nCopies(20, "--")));
+	}
+	
+	private boolean userIdValidTest(List<User> users, int recipientId, int currentUserId) {
+		boolean recipientChecker = false;
+		for (User a : users) {
+			if ((a.getId() == recipientId) && (a.getId() != currentUserId)) {
+				recipientChecker = true;
+			}
+		}
+		if (!recipientChecker) {
+			System.out.println("Please select a valid User ID");
+			return false;
+		}
+		return true;
+	}
+	
+	private void pendingTransferPrettyPrinter(List<Transfer> pendingTranfers) {
+		System.out.println("Pending Tranfers");
+		System.out.printf("%-10s", "ID");
+		System.out.printf("%-10s", "Name");
+		System.out.printf("%-10s", "Amount");
+		System.out.println();
+		System.out.println(String.join("", Collections.nCopies(20, "--")));
+		for( Transfer a : pendingTranfers) {
+			if (a.getTransferType() == 1) {
+				System.out.printf("%-10s", a.getTransferId());
+				System.out.printf("%-10s", a.getSenderName());
+				System.out.printf("%-10s", "$" + a.getAmount());
+				System.out.println();
+			}
+		}
+		System.out.println(String.join("", Collections.nCopies(20, "--")));
+	}
+	
+	private Transfer transferBuilder(int amountToTransfer, int transferType, int userId, int currentUserId) {
+		Transfer transfer = new Transfer();
+		transfer.setAmount(BigDecimal.valueOf(amountToTransfer));
+		transfer.setRecipientId(userId);
+		transfer.setTransferType(transferType);
+		transfer.setUserId(currentUserId);
+		return transfer;
+	}
+	
+	private int userIdSelector(List<User> users, int currentUserId) {
+		boolean userChecker = false;
+		int userId = 0;
+		while (!userChecker) {
+			userId = console.getUserInputInteger("Select a user ID>>>");
+			userChecker = userIdValidTest(users, userId, currentUserId);
+		}
+		return userId;
 	}
 }
