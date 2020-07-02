@@ -121,7 +121,13 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 	}
 
 	private void viewPendingRequests() {
-		// TODO Auto-generated method stub
+		List<Transfer> pendingTranfers = userAccountAPI.getPendingTransfers(currentUser.getUser().getId(), currentUser.getToken());
+		System.out.println( "Pending Tranfers");
+		System.out.println( "--------------------------------------");
+		for( Transfer a : pendingTranfers) {
+			System.out.print(a.getTransferId() + "  "+ a.getSenderName() + "   $" + a.getAmount());
+			System.out.println();
+		}
 		
 	}
 

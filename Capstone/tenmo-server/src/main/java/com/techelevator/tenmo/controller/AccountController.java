@@ -27,20 +27,17 @@ public class AccountController {
 	
 	@Autowired
 	private UserDAO userDao;
-	// Server is connected and accessing the database.
-	// Next step is to hook the client side up and process a user input
-	// passing that user input to our controller
-	//
+	
 	@RequestMapping(path="/accounts/{id}", method=RequestMethod.POST)
 	public UserAccount viewAccountBalance(@PathVariable(name = "id") int userId) {
 		return accountDAO.viewAccountBalance(userId);
 	}
-//	@PreAuthorize("permitAll()")
+
 	@RequestMapping(path = "/users" , method=RequestMethod.POST)
 	public List<User> viewAllUsers(){
 		return userDao.findAll();
 	}
-	@PreAuthorize("permitAll()")
+	
 	@ResponseStatus(HttpStatus.CREATED)
 	@RequestMapping(path = "/transfer" , method=RequestMethod.POST)
 	public void makeATrasnfer(@RequestBody Transfer transfer) {
@@ -51,6 +48,12 @@ public class AccountController {
 	public List<Transfer>viewAllTransfersById(@PathVariable(name="id") int userId){
 		return accountDAO.getAllTransfers(userId);
 	}
+	
+	@RequestMapping(path= "/transfer/pending/{id}" , method=RequestMethod.POST)
+	public List<Transfer> viewAllPendingTransferById(@PathVariable(name="id") int userId){
+		return accountDAO.getPendingTransfers(userId);
+	}
+	
 		
 	
 	

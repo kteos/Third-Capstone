@@ -89,5 +89,18 @@ public class UserAccountAPI implements UserAccountDAO {
     	headers.setBearerAuth(token);
     	HttpEntity entity = new HttpEntity<>(headers);
     	return entity;
-    }	
+    }
+
+	@Override
+	public List<Transfer> getPendingTransfers(int userId, String token) {
+		HttpEntity entity = createRequestEntity(token);
+		Transfer[] arrayOfTransfers = null;
+		try {
+			arrayOfTransfers = restTemplate.exchange(baseUrl + "transfer/pending/" + userId , HttpMethod.POST , entity, Transfer[].class).getBody();
+		} catch (RestClientResponseException ex) {
+			System.out.println(ex.getRawStatusCode() + " : " + ex.getResponseBodyAsString());
+		}
+		List<Transfer> listOfTransfers = Arrays.asList(arrayOfTransfers);
+		return listOfTransfers;
+	}	
 }
