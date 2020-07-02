@@ -67,7 +67,11 @@ public class AccountJDBC implements AccountDAO{
 	@Override
 	public List<Transfer> getAllTransfers(int userId) {
 		
-		String transferSql = "SELECT transfer_id, transfer_type_id, transfer_status_id, account_from, account_to , CAST (amount AS decimal) FROM transfers WHERE account_from = ? OR account_to = ?";
+		String transferSql = "SELECT t.transfer_id, t.transfer_type_id, t.transfer_status_id, t.account_from, t.account_to, CAST(t.amount AS decimal), u1.username AS sender, u2.username AS receipient " + 
+				"FROM transfers " + 
+				"JOIN users u1 ON t.account_from = u1.user_id " + 
+				"JOIN users u2 ON t.account_to = u2.user_id " + 
+				"WHERE t.account_from = ? OR t.account_to = ?";
 		SqlRowSet transferRows = jdbcTemplate.queryForRowSet(transferSql , userId , userId);
 		List<Transfer> transfers = new ArrayList<Transfer>();
 		while(transferRows.next()) {

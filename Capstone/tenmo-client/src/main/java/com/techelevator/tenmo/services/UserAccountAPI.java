@@ -11,6 +11,8 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 
 import com.techelevator.tenmo.models.Transfer;
@@ -34,9 +36,12 @@ public  UserAccountAPI( String baseUrl ) {
 	@Override
 	public UserAccount viewAccountBalance(int userId , String token) {
 		HttpEntity entity = createRequestEntity(token);
-		
-		UserAccount newUserAccount = restTemplate.exchange(baseUrl + "accounts/" + userId , HttpMethod.POST , entity , UserAccount.class).getBody();
-//		UserAccount newUserAccount = restTemplate.getForObject(baseUrl + "accounts/" + userId, UserAccount.class);
+		UserAccount newUserAccount = null;
+		try {
+			newUserAccount = restTemplate.exchange(baseUrl + "accounts/" + userId , HttpMethod.POST , entity , UserAccount.class).getBody();
+		} catch (RestClientResponseException ex) {
+			System.out.println(ex.getRawStatusCode() + " : " + ex.getResponseBodyAsString());
+		}
 		return newUserAccount;
 	}
 	
@@ -44,16 +49,43 @@ public  UserAccountAPI( String baseUrl ) {
 	@Override
 	public List<User> viewAll(String token) {
 		HttpEntity entity = createRequestEntity(token);
-		
-		User[] arrayOfUsers = restTemplate.exchange(baseUrl+"users",  HttpMethod.POST, entity, User[].class).getBody();
-		
+		User[] arrayOfUsers = null;
+		try {
+			arrayOfUsers = restTemplate.exchange(baseUrl+"users",  HttpMethod.POST, entity, User[].class).getBody();
+		} catch (RestClientResponseException ex) {
+			System.out.println(ex.getRawStatusCode() + " : " + ex.getResponseBodyAsString());
+		}
 		List<User> allUsers = Arrays.asList(arrayOfUsers);
 		return allUsers;
 	}
 	
-	
-	
-	
+	@Override
+	public void createTransfer(Transfer transfer, String token) {
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		headers.setBearerAuth(token);
+		HttpEntity<Transfer> transferRequest = new HttpEntity<Transfer>(transfer, headers);
+		 
+		try {
+			restTemplate.postForObject(baseUrl+ "transfer", transferRequest, Transfer.class);
+		} catch (RestClientResponseException ex) {
+			System.out.println(ex.getRawStatusCode() + " : " + ex.getResponseBodyAsString());
+		}
+	}
+
+	@Override
+	public List<Transfer> listOfUserTransfers(int userId, String token) {
+		HttpEntity entity = createRequestEntity(token);
+		Transfer[] arrayOfTransfers = null;
+		try {
+			arrayOfTransfers = restTemplate.exchange(baseUrl + "transfer/" + userId , HttpMethod.POST , entity, Transfer[].class).getBody();
+		} catch (RestClientResponseException ex) {
+			System.out.println(ex.getRawStatusCode() + " : " + ex.getResponseBodyAsString());
+		}
+		List<Transfer> listOfTransfers = Arrays.asList(arrayOfTransfers);
+		return listOfTransfers;
+	}
+
 	
 	private HttpEntity createRequestEntity(String token) {
     	HttpHeaders headers = new HttpHeaders();
@@ -62,29 +94,6 @@ public  UserAccountAPI( String baseUrl ) {
     	return entity;
     }
 
-	@Override
-	public void createTransfer(Transfer transfer, String token) {
-//		HttpEntity entity = createRequestEntity(token);
-		HttpHeaders headers = new HttpHeaders();
-		headers.setContentType(MediaType.APPLICATION_JSON);
-		headers.setBearerAuth(token);
-		HttpEntity<Transfer> transferRequest = new HttpEntity<Transfer>(transfer, headers);
-		 
-		restTemplate.postForObject(baseUrl+ "transfer", transferRequest, Transfer.class);
-		
-//		restTemplate.exchange(baseUrl+ "transfer", HttpMethod.POST , transferRequest, Transfer.class);
-
-		
-	}
-
-	@Override
-	public List<Transfer> listOfUserTransfers(int userId, String token) {
-		HttpEntity entity = createRequestEntity(token);
-		Transfer[] arrayOfTransfers = restTemplate.exchange(baseUrl + "transfer/" + userId , HttpMethod.POST , entity, Transfer[].class).getBody();
-		List<Transfer> listOfTransfers = Arrays.asList(arrayOfTransfers);
-
-		return listOfTransfers;
-	}
 
 	
 }
