@@ -10,4 +10,5 @@ public interface UserAccountDAO {
 	List<User> viewAll(String token);
 	void createTransfer(Transfer transfer, String token);
 	List<Transfer> listOfUserTransfers(int userId, String token);
+	List<Transfer> getPendingTransfers(int userId);
 }

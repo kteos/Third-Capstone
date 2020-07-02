@@ -95,7 +95,12 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 		List<Transfer> listOfTransfers = userAccountAPI.listOfUserTransfers(currentUser.getUser().getId(), currentUser.getToken());
 		for(Transfer a : listOfTransfers) {
 			System.out.print(a.getTransferId() + "    ");
-			System.out.print(  a.getAmount());
+				if(a.getTransferType() == 2) {
+					System.out.print("To: " + a.getRecipientName() + "    ");
+				} else {
+					System.out.print("From: " + a.getSenderName() + "    ");
+				}
+			System.out.print(a.getAmount());
 			System.out.println();
 		}
 		int userSelectedTransferId = console.getUserInputInteger("Please enter transfer ID to view details >>>");
@@ -103,14 +108,16 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 		// adjust sql command to add join
 		for( Transfer b:listOfTransfers ) {
 			if(b.getTransferId() == userSelectedTransferId) {
-				System.out.println( "ID " + b.getTransferId());
-				System.out.println( "Amount " + b.getAmount());
+					System.out.println("ID: " + b.getTransferId());
+					System.out.println("From: " + b.getSenderName());
+					System.out.println("To: " + b.getRecipientName());
+					// TODO Method to change transfer type from 1-3 to Send, Request etc
+					System.out.println("Type: " + b.getTransferType());
+					System.out.println("Status: " + b.getTransferStatusId());
+					System.out.println("Amount: " + b.getAmount());
+				System.out.println();
 			}
 		}
-		
-	
-		
-		
 	}
 
 	private void viewPendingRequests() {
@@ -124,7 +131,7 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 			System.out.println(a.getId() + a.getUsername());
 			//TODO formatting needs to be done 
 		}
-		//TODO recipient id is in the list check if funds are avilable
+		//TODO recipient id is in the list check if funds are available
 		int recipientId = console.getUserInputInteger("Select a user ID>>>");
 		int amountToTransfer = console.getUserInputInteger("Enter amount >>" );
 		Transfer transfer = new Transfer();

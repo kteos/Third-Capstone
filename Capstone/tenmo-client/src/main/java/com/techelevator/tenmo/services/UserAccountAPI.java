@@ -27,11 +27,10 @@ public class UserAccountAPI implements UserAccountDAO {
 	private RestTemplate restTemplate;
 	
 	
-public  UserAccountAPI( String baseUrl ) {
-	this.baseUrl = baseUrl;
-	restTemplate = new RestTemplate();
-	
-}
+	public  UserAccountAPI( String baseUrl ) {
+		this.baseUrl = baseUrl;
+		restTemplate = new RestTemplate();
+	}
 
 	@Override
 	public UserAccount viewAccountBalance(int userId , String token) {
@@ -44,7 +43,6 @@ public  UserAccountAPI( String baseUrl ) {
 		}
 		return newUserAccount;
 	}
-	
 	
 	@Override
 	public List<User> viewAll(String token) {
@@ -86,14 +84,10 @@ public  UserAccountAPI( String baseUrl ) {
 		return listOfTransfers;
 	}
 
-	
 	private HttpEntity createRequestEntity(String token) {
     	HttpHeaders headers = new HttpHeaders();
     	headers.setBearerAuth(token);
     	HttpEntity entity = new HttpEntity<>(headers);
     	return entity;
-    }
-
-
-	
+    }	
 }

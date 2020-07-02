@@ -11,5 +11,6 @@ public interface AccountDAO {
 	UserAccount viewAccountBalance(int userId );
 	void completeTransfer(Transfer transfer);
 	List<Transfer>getAllTransfers(int userId);
+	List<Transfer>getPendingTransfers(int userId);
 	
 }

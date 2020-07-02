@@ -3,45 +3,79 @@ package com.techelevator.tenmo.models;
 import java.math.BigDecimal;
 
 public class Transfer {
-	int userId;
-	int recipientId;
-	int transferType;
-	int transferId;
-	BigDecimal amount;
+
+	private int userId;
+	private int recipientId;
+	private int transferType;
+	private int transferId;
+	private BigDecimal amount;
+	private String senderName;
+	private String recipientName;
+	private int transferStatusId;
 	
+
+	public int getTransferStatusId() {
+		return transferStatusId;
+	}
+
+	public void setTransferStatusId(int transferStatusId) {
+		this.transferStatusId = transferStatusId;
+	}
 	
-	public int getUserId() {
-		return userId;
+	public String getSenderName() {
+		return senderName;
 	}
-	public void setUserId(int userId) {
-		this.userId = userId;
+
+	public void setSenderName(String senderName) {
+		this.senderName = senderName;
 	}
-	public int getRecipientId() {
-		return recipientId;
+
+	public String getRecipientName() {
+		return recipientName;
 	}
-	public void setRecipientId(int recipientId) {
-		this.recipientId = recipientId;
+
+	public void setRecipientName(String recipientName) {
+		this.recipientName = recipientName;
 	}
-	public int getTransferType() {
-		return transferType;
-	}
-	public void setTransferType(int transferType) {
-		this.transferType = transferType;
-	}
-	public BigDecimal getAmount() {
-		return amount;
-	}
-	public void setAmount(BigDecimal amount) {
-		this.amount = amount;
-	}
+
 	public int getTransferId() {
 		return transferId;
 	}
+
 	public void setTransferId(int transferId) {
 		this.transferId = transferId;
 	}
-	
-	
-	
+
+	public int getUserId() {
+		return userId;
+	}
+
+	public void setUserId(int userId) {
+		this.userId = userId;
+	}
+
+	public int getRecipientId() {
+		return recipientId;
+	}
+
+	public void setRecipientId(int recipientId) {
+		this.recipientId = recipientId;
+	}
+
+	public int getTransferType() {
+		return transferType;
+	}
+
+	public void setTransferType(int transferType) {
+		this.transferType = transferType;
+	}
+
+	public BigDecimal getAmount() {
+		return amount;
+	}
+
+	public void setAmount(BigDecimal amount) {
+		this.amount = amount;
+	}
 
 }
