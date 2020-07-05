@@ -135,7 +135,7 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 			return;
 		} else if (userApproveOrRejectSelection == 1) {
 			if (userSelectedTransfer.getRecipientId() == currentUser.getUser().getId()) {
-				System.out.println("You cannot accept a request that is not sent to you.");
+				System.out.println("You cannot accept a request that you sent.");
 				return;
 			}
 			approvalHandler(transferAmount, userSelectedTransfer, userApproveOrRejectSelection);
@@ -443,23 +443,31 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 	private int approveOrRejectPrinter() {
 		boolean userSelectionChecker = false;
 		int userSelection = 0;
-		ArrayList<Integer> possibleSelections = new ArrayList<Integer>();
-		possibleSelections.add(1);
-		possibleSelections.add(2);
-		possibleSelections.add(0);
 		while (!userSelectionChecker) {
 			System.out.println("1: Approve");
 			System.out.println("2: Reject");
 			System.out.println("0: Don't Approve or Reject");
 			System.out.println(String.join("", Collections.nCopies(4, "--")));
 			userSelection = console.getUserInputInteger("Please choose an option: ");
-			if (possibleSelections.contains(userSelection)) {
+			if (approveOrRejectChecker(userSelection)) {
 				userSelectionChecker = true;
 				return userSelection;
 			}
 			System.out.println("Sorry, please choose a valid option");
 		}
 		return userSelection;
+	}
+	
+	private boolean approveOrRejectChecker(int userSelection) {
+		ArrayList<Integer> possibleSelections = new ArrayList<Integer>();
+		possibleSelections.add(1);
+		possibleSelections.add(2);
+		possibleSelections.add(0);
+		
+		if (possibleSelections.contains(userSelection)) {
+			return true;
+		}
+		return false;
 	}
 	
 }
