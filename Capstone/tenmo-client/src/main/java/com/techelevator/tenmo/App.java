@@ -1,6 +1,7 @@
 package com.techelevator.tenmo;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -115,7 +116,10 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 
 	private void viewPendingRequests() {
 		List<Transfer> pendingTransfers = userAccountAPI.getPendingTransfers(currentUser.getUser().getId(), currentUser.getToken());
-		pendingTransferPrettyPrinter(pendingTransfers);
+		int pendingTransferCounter = pendingTransferPrettyPrinter(pendingTransfers);
+		if (pendingTransferCounter == 0) {
+			return;
+		}
 		
 		int userSelectedTransferId = pendingRequestIdSelector(pendingTransfers);
 		if (userSelectedTransferId == 0) {
@@ -131,7 +135,7 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 			return;
 		} else if (userApproveOrRejectSelection == 1) {
 			approvalHandler(transferAmount, userSelectedTransfer, userApproveOrRejectSelection);
-		} else {
+		} else if (userApproveOrRejectSelection == 2){
 			rejectionHandler(userSelectedTransfer, userApproveOrRejectSelection);
 		}
 	}
@@ -324,7 +328,7 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 		if (availableFundsChecker(transferAmount)) {
 			userAccountAPI.acceptOrRejectTransfer(userSelectedTransfer, userApproveOrRejectSelection, currentUser.getToken());
 			System.out.println("Transfer Approved!");
-		} System.out.println("You do not have the funds available to approve this request.");
+		}
 	}
 	
 	private void rejectionHandler(Transfer userSelectedTransfer, int userApproveOrRejectSelection) {
@@ -362,6 +366,7 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 		System.out.println();
 		System.out.println(String.join("", Collections.nCopies(20, "--")));
 		for(Transfer a : pastTranfers) {
+			if ((a.getTransferStatusId() == 2) || (a.getTransferStatusId() == 3)) {
 			System.out.printf("%-10s", a.getTransferId());
 				if(a.getTransferType() == 2) {
 					System.out.printf("%-15s", "To: " + a.getRecipientName());
@@ -370,6 +375,7 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 				}
 			System.out.printf("%-10s", "$" + a.getAmount());
 			System.out.println();
+			}
 		}
 	}
 	
@@ -389,7 +395,8 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 		}
 	}
 	
-	private void pendingTransferPrettyPrinter(List<Transfer> pendingTranfers) {
+	private int pendingTransferPrettyPrinter(List<Transfer> pendingTranfers) {
+		int transferCounter = 0;
 		System.out.println("Pending Tranfers");
 		System.out.printf("%-10s", "ID");
 		System.out.printf("%-10s", "To");
@@ -397,14 +404,19 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 		System.out.println();
 		System.out.println(String.join("", Collections.nCopies(20, "--")));
 		for( Transfer a : pendingTranfers) {
-			if (a.getTransferType() == 1) {
+			if (a.getTransferStatusId() == 1) {
 				System.out.printf("%-10s", a.getTransferId());
 				System.out.printf("%-10s", a.getSenderName());
 				System.out.printf("%-10s", "$" + a.getAmount());
 				System.out.println();
+				transferCounter += 1;
 			}
 		}
 		System.out.println(String.join("", Collections.nCopies(20, "--")));
+		if (transferCounter == 0) {
+			System.out.println("You have no pending transfers.");
+		}
+		return transferCounter;
 	}
 	
 	private void usersPrettyPrinter(List<User> users, int currentUserId) {
@@ -425,16 +437,23 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 	}
 	
 	private int approveOrRejectPrinter() {
-		int userSelection = 4;
-		while (userSelection != 1 || userSelection != 2 || userSelection != 0) {
+		boolean userSelectionChecker = false;
+		int userSelection = 0;
+		ArrayList<Integer> possibleSelections = new ArrayList<Integer>();
+		possibleSelections.add(1);
+		possibleSelections.add(2);
+		possibleSelections.add(0);
+		while (!userSelectionChecker) {
 			System.out.println("1: Approve");
 			System.out.println("2: Reject");
 			System.out.println("0: Don't Approve or Reject");
 			System.out.println(String.join("", Collections.nCopies(4, "--")));
-			userSelection = console.getUserInputInteger("Please choose an option ");
-			if (userSelection != 1 || userSelection != 2 || userSelection != 3) {
-				System.out.println("Sorry, please choose a valid option");
+			userSelection = console.getUserInputInteger("Please choose an option: ");
+			if (possibleSelections.contains(userSelection)) {
+				userSelectionChecker = true;
+				return userSelection;
 			}
+			System.out.println("Sorry, please choose a valid option");
 		}
 		return userSelection;
 	}
