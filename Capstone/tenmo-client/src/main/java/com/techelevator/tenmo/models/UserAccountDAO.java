@@ -1,6 +1,5 @@
 package com.techelevator.tenmo.models;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 public interface UserAccountDAO {
