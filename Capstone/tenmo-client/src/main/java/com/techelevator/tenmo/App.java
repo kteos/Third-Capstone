@@ -134,6 +134,10 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 		if (userApproveOrRejectSelection == 0) {
 			return;
 		} else if (userApproveOrRejectSelection == 1) {
+			if (userSelectedTransfer.getRecipientId() == currentUser.getUser().getId()) {
+				System.out.println("You cannot accept a request that is not sent to you.");
+				return;
+			}
 			approvalHandler(transferAmount, userSelectedTransfer, userApproveOrRejectSelection);
 		} else if (userApproveOrRejectSelection == 2){
 			rejectionHandler(userSelectedTransfer, userApproveOrRejectSelection);
