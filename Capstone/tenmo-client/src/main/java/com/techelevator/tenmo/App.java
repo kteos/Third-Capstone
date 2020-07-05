@@ -106,7 +106,7 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 	private void viewTransferHistory() {
 		List<Transfer> listOfTransfers = userAccountAPI.listOfUserTransfers(currentUser.getUser().getId(), currentUser.getToken());
 		historyTransferPrettyPrinter(listOfTransfers);
-		int userSelectedTransferId = transferIdSelector();
+		int userSelectedTransferId = transferIdSelectorWithFundsCheck();
 		if (userSelectedTransferId == 0) {
 			return;
 		}
@@ -114,9 +114,28 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 	}
 
 	private void viewPendingRequests() {
-		List<Transfer> pendingTranfers = userAccountAPI.getPendingTransfers(currentUser.getUser().getId(), currentUser.getToken());
-		pendingTransferPrettyPrinter(pendingTranfers);
+		List<Transfer> pendingTransfers = userAccountAPI.getPendingTransfers(currentUser.getUser().getId(), currentUser.getToken());
+		pendingTransferPrettyPrinter(pendingTransfers);
+		
+		int userSelectedTransferId = pendingRequestIdSelector(pendingTransfers);
+		if (userSelectedTransferId == 0) {
+			return;
+		}
+		
+		Transfer userSelectedTransfer = transferFinder(pendingTransfers, userSelectedTransferId);
+		double transferAmount = userSelectedTransfer.getAmount().doubleValue();
+		
+		int userApproveOrRejectSelection = approveOrRejectPrinter();
+		
+		if (userApproveOrRejectSelection == 0) {
+			return;
+		} else if (userApproveOrRejectSelection == 1) {
+			approvalHandler(transferAmount, userSelectedTransfer, userApproveOrRejectSelection);
+		} else {
+			rejectionHandler(userSelectedTransfer, userApproveOrRejectSelection);
+		}
 	}
+
 
 	private void sendBucks() {
 		List<User> list = userAccountAPI.viewAll(currentUser.getToken());
@@ -236,6 +255,15 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 		return userId;
 	}
 	
+	private Transfer transferBuilder(double amountToTransfer, int transferType, int userId, int currentUserId) {
+		Transfer transfer = new Transfer();
+		transfer.setAmount(BigDecimal.valueOf(amountToTransfer));
+		transfer.setRecipientId(userId);
+		transfer.setTransferType(transferType);
+		transfer.setUserId(currentUserId);
+		return transfer;
+	}
+	
 	private double transferAmountSelector() {
 		boolean amountChecker = false;
 		double transferAmount = 0;
@@ -248,7 +276,7 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 		return transferAmount;
 	}
 	
-	private int transferIdSelector() {
+	private int transferIdSelectorWithFundsCheck() {
 		boolean transferChecker = false;
 		int transferId = 0;
 			while (!transferChecker) {
@@ -261,13 +289,47 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 		return transferId;
 	}
 	
-	private Transfer transferBuilder(double amountToTransfer, int transferType, int userId, int currentUserId) {
-		Transfer transfer = new Transfer();
-		transfer.setAmount(BigDecimal.valueOf(amountToTransfer));
-		transfer.setRecipientId(userId);
-		transfer.setTransferType(transferType);
-		transfer.setUserId(currentUserId);
-		return transfer;
+	private Transfer transferFinder(List<Transfer> pendingTransfers, int userSelectedTransferId) {
+		Transfer nonreturningtransfer = null;
+		for(Transfer transfer : pendingTransfers) {
+			if (transfer.getTransferId() == userSelectedTransferId) {
+				return transfer;
+			}
+		}
+		return nonreturningtransfer;
+	}
+	
+	private int pendingRequestIdSelector(List<Transfer> pendingTranfers) {
+		boolean pendingChecker = false;
+		int transferId = 0;
+			while (!pendingChecker) {
+				transferId = console.getUserInputInteger("Please enter transfer ID to approve/reject (0 to cancel)");
+				if (transferId == 0) {
+					return transferId;
+				}
+				pendingChecker = validTransferIdRequest(pendingTranfers, transferId);
+			}
+		return transferId;
+	}
+	
+	private boolean validTransferIdRequest(List<Transfer> pendingTranfers, int transferId) {
+		for(Transfer transfer : pendingTranfers) {
+			if (transfer.getTransferId() == transferId) {
+				return true;
+			}
+		} return false;
+	}
+	
+	private void approvalHandler(double transferAmount, Transfer userSelectedTransfer, int userApproveOrRejectSelection) {
+		if (availableFundsChecker(transferAmount)) {
+			userAccountAPI.acceptOrRejectTransfer(userSelectedTransfer, userApproveOrRejectSelection, currentUser.getToken());
+			System.out.println("Transfer Approved!");
+		} System.out.println("You do not have the funds available to approve this request.");
+	}
+	
+	private void rejectionHandler(Transfer userSelectedTransfer, int userApproveOrRejectSelection) {
+		userAccountAPI.acceptOrRejectTransfer(userSelectedTransfer, userApproveOrRejectSelection, currentUser.getToken());
+		System.out.println("Transfer Rejected");
 	}
 	
 	private boolean availableFundsChecker(double amountToTransfer) {
@@ -277,7 +339,7 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 			return false;
 		}
 		if (amountToTransfer < 0) {
-			System.out.println("You have to send at least $1. Please try again.");
+			System.out.println("You have to have at least $1 in your account. Please try again.");
 			return false;
 		}
 		return true;
@@ -330,7 +392,7 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 	private void pendingTransferPrettyPrinter(List<Transfer> pendingTranfers) {
 		System.out.println("Pending Tranfers");
 		System.out.printf("%-10s", "ID");
-		System.out.printf("%-10s", "Name");
+		System.out.printf("%-10s", "To");
 		System.out.printf("%-10s", "Amount");
 		System.out.println();
 		System.out.println(String.join("", Collections.nCopies(20, "--")));
@@ -360,6 +422,21 @@ private static final String API_BASE_URL = "http://localhost:8080/";
 			}
 		}
 		System.out.println(String.join("", Collections.nCopies(20, "--")));
+	}
+	
+	private int approveOrRejectPrinter() {
+		int userSelection = 4;
+		while (userSelection != 1 || userSelection != 2 || userSelection != 0) {
+			System.out.println("1: Approve");
+			System.out.println("2: Reject");
+			System.out.println("0: Don't Approve or Reject");
+			System.out.println(String.join("", Collections.nCopies(4, "--")));
+			userSelection = console.getUserInputInteger("Please choose an option ");
+			if (userSelection != 1 || userSelection != 2 || userSelection != 3) {
+				System.out.println("Sorry, please choose a valid option");
+			}
+		}
+		return userSelection;
 	}
 	
 }

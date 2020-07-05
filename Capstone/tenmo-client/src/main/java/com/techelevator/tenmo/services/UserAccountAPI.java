@@ -1,17 +1,12 @@
 package com.techelevator.tenmo.services;
 
-import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.jws.soap.SOAPBinding.Use;
-
-import org.omg.CosNaming.NamingContextExtPackage.StringNameHelper;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
-import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 
@@ -19,7 +14,6 @@ import com.techelevator.tenmo.models.Transfer;
 import com.techelevator.tenmo.models.User;
 import com.techelevator.tenmo.models.UserAccount;
 import com.techelevator.tenmo.models.UserAccountDAO;
-import com.techelevator.tenmo.models.UserCredentials;
 
 public class UserAccountAPI implements UserAccountDAO {
 	
@@ -103,4 +97,19 @@ public class UserAccountAPI implements UserAccountDAO {
 		List<Transfer> listOfTransfers = Arrays.asList(arrayOfTransfers);
 		return listOfTransfers;
 	}	
+	
+	@Override
+	public void acceptOrRejectTransfer(Transfer transfer, int approveOrRejectStatus, String token) {
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_JSON);
+		headers.setBearerAuth(token);
+		HttpEntity<Transfer> transferRequest = new HttpEntity<Transfer>(transfer, headers);
+		 
+		try {
+			restTemplate.postForObject(baseUrl+ "transfer/" + "statusupdate/" + approveOrRejectStatus, transferRequest, Transfer.class);
+		} catch (RestClientResponseException ex) {
+			System.out.println(ex.getRawStatusCode() + " : " + ex.getResponseBodyAsString());
+		}
+	}
+	
 }

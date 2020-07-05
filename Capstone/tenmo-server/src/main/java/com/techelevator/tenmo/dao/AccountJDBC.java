@@ -1,6 +1,5 @@
 package com.techelevator.tenmo.dao;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -83,6 +82,28 @@ public class AccountJDBC implements AccountDAO{
 			transfers.add(transfer);
 		}
 		return transfers;
+	}
+	
+	@Override
+	public void transferApprovalOrDenial(Transfer transfer, int approveOrRejectStatus) {
+		if (approveOrRejectStatus == 1) {
+			String transferUpdateSql = "UPDATE transfers SET transfer_status_id = ? WHERE transfer_id = ?";
+			jdbcTemplate.update(transferUpdateSql, 2, transfer.getTransferId());
+			
+			String fundIncreaseSql = "UPDATE accounts SET balance = (SELECT balance) + ? WHERE account_id = ?";
+			jdbcTemplate.update(fundIncreaseSql, transfer.getAmount(), transfer.getRecipientId());
+			
+			String fundDecreaseSql = "UPDATE accounts SET balance = (SELECT balance) - ? WHERE account_id = ?";
+			jdbcTemplate.update(fundDecreaseSql, transfer.getAmount(), transfer.getUserId());
+		}
+		
+		if (approveOrRejectStatus == 2) {
+			String transferUpdateSql = "UPDATE transfers SET transfer_status_id = ? WHERE transfer_id = ?";
+			jdbcTemplate.update(transferUpdateSql, 3, transfer.getTransferId());
+		}
+		
+
+		
 	}
 	
 	private Transfer mapTransferFromRowSet(SqlRowSet transferRows) {

@@ -54,6 +54,12 @@ public class AccountController {
 		return accountDAO.getPendingTransfers(userId);
 	}
 	
+	@ResponseStatus(HttpStatus.CREATED)
+	@RequestMapping(path= "/transfer/statusupdate/{id}", method=RequestMethod.POST)
+	public void acceptOrRejectTransfer(@PathVariable(name="id") int approveOrRejectStatus, @RequestBody Transfer transfer) {
+		accountDAO.transferApprovalOrDenial(transfer, approveOrRejectStatus);
+	}
+	
 		
 	
 	
